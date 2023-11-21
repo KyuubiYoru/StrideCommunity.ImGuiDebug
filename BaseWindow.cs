@@ -19,7 +19,7 @@ namespace StrideCommunity.ImGuiDebug
         protected virtual ImGuiWindowFlags WindowFlags => ImGuiWindowFlags.None;
         protected virtual Vector2? WindowPos => null;
         protected virtual Vector2? WindowSize => null;
-        string _uniqueName;
+        protected string UniqueName;
         ImGuiSystem _imgui;
 
         protected BaseWindow( IServiceRegistry services ) : base( services )
@@ -37,7 +37,7 @@ namespace StrideCommunity.ImGuiDebug
 
                 _windowId[ n ] = Id + 1;
             }
-            _uniqueName = Id == 1 ? n : $"{n}({Id})";
+            UniqueName = Id == 1 ? n : $"{n}({Id})";
         }
 
         public override void Update( GameTime gameTime )
@@ -60,7 +60,7 @@ namespace StrideCommunity.ImGuiDebug
                 ImGui.SetNextWindowPos( WindowPos.Value );
             if( WindowSize != null )
                 ImGui.SetNextWindowSize( WindowSize.Value );
-            using( Window( _uniqueName, ref Open, out bool collapsed, WindowFlags ) )
+            using( Window( UniqueName, ref Open, out bool collapsed, WindowFlags ) )
             {
                 OnDraw( collapsed );
             }
