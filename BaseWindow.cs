@@ -19,6 +19,10 @@ namespace StrideCommunity.ImGuiDebug
         protected virtual ImGuiWindowFlags WindowFlags => ImGuiWindowFlags.None;
         protected virtual Vector2? WindowPos => null;
         protected virtual Vector2? WindowSize => null;
+        
+        /// <summary>
+        /// If set ensures that only one window of this type is open at a time otherwise Ui will be broken
+        /// </summary>
         protected string UniqueName;
         ImGuiSystem _imgui;
 
