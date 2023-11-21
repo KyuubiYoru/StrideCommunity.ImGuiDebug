@@ -20,28 +20,29 @@ namespace StrideCommunity.ImGuiDebug
         protected virtual Vector2? WindowPos => null;
         protected virtual Vector2? WindowSize => null;
         
-        /// <summary>
-        /// If set ensures that only one window of this type is open at a time otherwise Ui will be broken
-        /// </summary>
-        protected string UniqueName;
+        protected string Title;
+        
+        private string _uniqueName;
         ImGuiSystem _imgui;
 
-        protected BaseWindow( IServiceRegistry services ) : base( services )
+        protected BaseWindow( IServiceRegistry services, string title = null ) : base( services )
         {
+            Title = title;
             Game.GameSystems.Add(this);
             Enabled = true;
-            var n = GetType().Name;
+            var n = string.IsNullOrWhiteSpace(Title) ? GetType().Name : Title;
             lock( _windowId )
             {
                 if( _windowId.TryGetValue( n, out Id ) == false )
                 {
                     Id = 1;
                     _windowId.Add( n, Id );
+                    Title = n;
                 }
 
                 _windowId[ n ] = Id + 1;
             }
-            UniqueName = Id == 1 ? n : $"{n}({Id})";
+            _uniqueName = Id == 1 ? n : $"{n}({Id})";
         }
 
         public override void Update( GameTime gameTime )
@@ -64,7 +65,7 @@ namespace StrideCommunity.ImGuiDebug
                 ImGui.SetNextWindowPos( WindowPos.Value );
             if( WindowSize != null )
                 ImGui.SetNextWindowSize( WindowSize.Value );
-            using( Window( UniqueName, ref Open, out bool collapsed, WindowFlags ) )
+            using( Window( _uniqueName, ref Open, out bool collapsed, WindowFlags ) )
             {
                 OnDraw( collapsed );
             }
@@ -81,6 +82,10 @@ namespace StrideCommunity.ImGuiDebug
         protected override void Destroy()
         {
             Game.GameSystems.Remove( this );
+            lock (_windowId)
+            {
+                _windowId.Remove(Title);
+            }
             OnDestroy();
             base.Destroy();
         }
